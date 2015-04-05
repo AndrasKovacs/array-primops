@@ -1,0 +1,21 @@
+name: array-primops-benchmarks
+version: 0
+build-type: Simple
+cabal-version: >=1.2
+
+executable array-primops-benchmarks
+  default-language: Haskell2010
+  ghc-options: -O2 -fllvm
+
+  c-sources:
+    ../cbits/array.cmm
+    ../cbits/smallArray.cmm
+  hs-source-dirs: .. .
+  main-is: Benchmarks.hs
+  other-modules:
+    GHC.Prim.Array
+    GHC.Prim.SmallArray
+  build-depends:
+    base,
+    ghc-prim,
+    criterion
