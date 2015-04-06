@@ -9,36 +9,42 @@ maintainer:          puttamalac@gmail.com
 copyright:           2015 András Kovács
 category:            Data
 build-type:          Simple
-cabal-version:       >=1.10      
+cabal-version:       >=1.10     
+
+description:
+
+  Boxed arrays cannot be allocated without initialization, because in that case the garbage collector would try to follow wild pointers. This is a source of inefficiency; quite a few operations must allocate a new array, initialize it, then overwrite the initial elements with the actually relevant data. This package provides low-level primitives for doing such operations without superfluous copying. 
+
+source-repository head
+  type:     git
+  location: https://github.com/AndrasKovacs/array-primops.git
 
 library
   default-language: Haskell2010
 
-  if impl(ghc >= 7.10)
+  if impl(ghc >= 7.8)
 
     exposed-modules:
       GHC.Prim.Array
-      GHC.Prim.SmallArray
 
     build-depends:
-      base >= 4.8 && <4.9 ,
-      ghc-prim == 0.4.0.0
+      base >= 4.7 && <4.9 ,
+      ghc-prim >= 0.3.1.0
 
     c-sources:
-      cbits/array.cmm ,
-      cbits/smallArray.cmm
-
-  if impl(ghc == 7.8.*)
+      cbits/array.cmm 
+ 
+    if impl(ghc >= 7.10)
     
-    exposed-modules:
-      GHC.Prim.Array
+      exposed-modules:
+        GHC.Prim.SmallArray
 
-    build-depends:
-      ghc-prim >= 0.3.1.0 && <= 0.4.0.0 ,
-      base >= 4.7 && <4.9
+      build-depends:
+        ghc-prim >= 0.4.0.0
 
-    c-sources:
-      cbits/array.cmm
+      c-sources:
+        cbits/smallArray.cmm
+
 
 benchmark benchmarks
   default-language: Haskell2010
