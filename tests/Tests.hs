@@ -26,6 +26,7 @@ data A a = A (Array# a)
 
 consA a (A arr) = A (consArray# a arr)
 snocA (A arr) a = A (snocArray# arr a)
+snocAPad (I# pad) padElem (A arr) a = A (snocArrayWithPadding# pad padElem arr a)
 insertA (I# i) a (A arr) = A (insertArray# i a arr)
 deleteA (I# i) (A arr)   = A (deleteArray# i arr)
 
@@ -47,6 +48,7 @@ data SA a = SA (SmallArray# a)
 
 consSA a (SA arr) = SA (consSmallArray# a arr)
 snocSA (SA arr) a = SA (snocSmallArray# arr a)
+snocSAPad (I# pad) padElem (SA arr) a = SA (snocSmallArrayWithPadding# pad padElem arr a)
 insertSA (I# i) a (SA arr) = SA (insertSmallArray# i a arr)
 deleteSA (I# i) (SA arr)   = SA (deleteSmallArray# i arr)
 
@@ -73,6 +75,11 @@ main = defaultMain $ testGroup "tests" [
     , testProperty "snoc" $ \(xs :: [Int]) x ->
         (xs ++ [x]) == toListSA (snocSA (fromListSA xs) x)
 
+    , testProperty "snocWithPadding" $ \(xs :: [Int]) x ->
+        forAll (choose (0, 10)) $ \pad ->
+             (xs ++ [x] ++ replicate pad 0)
+          == toListSA (snocSAPad pad 0 (fromListSA xs) x)
+
     , testProperty "insert" $ \(xs :: [Int]) x ->
         forAll (choose (0, length xs)) $ \n ->
           insList n x xs == toListSA (insertSA n x (fromListSA xs))
@@ -88,6 +95,11 @@ main = defaultMain $ testGroup "tests" [
 
     , testProperty "snoc" $ \(xs :: [Int]) x ->
         (xs ++ [x]) == toListA (snocA (fromListA xs) x)
+
+    , testProperty "snocWithPadding" $ \(xs :: [Int]) x ->
+        forAll (choose (0, 10)) $ \pad ->
+             (xs ++ [x] ++ replicate pad 0)
+          == toListA (snocAPad pad 0 (fromListA xs) x)
 
     , testProperty "insert" $ \(xs :: [Int]) x ->
         forAll (choose (0, length xs)) $ \n ->

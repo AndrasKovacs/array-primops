@@ -4,93 +4,136 @@
 consArray(gcptr elem, gcptr src) {
     W_ words, old_ptrs, new_ptrs, new_size;
     gcptr dst, dst_p, src_end;
-                                                               
-    again: MAYBE_GC(again); 
-             
+
+    again: MAYBE_GC(again);
+
     old_ptrs = StgMutArrPtrs_ptrs(src);
     new_ptrs = old_ptrs + 1;
     new_size = new_ptrs + mutArrPtrsCardWords(new_ptrs);
 
     words = BYTES_TO_WDS(SIZEOF_StgMutArrPtrs) + new_size;
-    ("ptr" dst) = ccall allocate(MyCapability() "ptr", words); 
+    ("ptr" dst) = ccall allocate(MyCapability() "ptr", words);
     TICK_ALLOC_PRIM(SIZEOF_StgMutArrPtrs, WDS(new_size), 0);
-    SET_HDR(dst, stg_MUT_ARR_PTRS_FROZEN_info, CCCS);                                 
+    SET_HDR(dst, stg_MUT_ARR_PTRS_FROZEN_info, CCCS);
     StgMutArrPtrs_ptrs(dst) = new_ptrs;
-    StgMutArrPtrs_size(dst) = new_size;                               
-                        
-    dst_p   = dst + SIZEOF_StgMutArrPtrs;                   
+    StgMutArrPtrs_size(dst) = new_size;
+
+    dst_p   = dst + SIZEOF_StgMutArrPtrs;
     src     = src + SIZEOF_StgMutArrPtrs;
     src_end = src + WDS(old_ptrs);
 
     W_[dst_p] = elem;
     dst_p = dst_p + WDS(1);
 
-  while:                                                       
-    if (src != src_end) {                                         
-        W_[dst_p] = W_[src];                                 
-        dst_p = dst_p + WDS(1);                                
-        src   = src   + WDS(1);                                
-        goto while;                                            
-    }                                                          
-                                                               
+  while:
+    if (src != src_end) {
+        W_[dst_p] = W_[src];
+        dst_p = dst_p + WDS(1);
+        src   = src   + WDS(1);
+        goto while;
+    }
+
     return (dst);
 }
 
 snocArray(gcptr src, gcptr elem) {
     W_ words, old_ptrs, new_ptrs, new_size;
     gcptr dst, dst_p, src_end;
-                                                               
-    again: MAYBE_GC(again); 
-             
+
+    again: MAYBE_GC(again);
+
     old_ptrs = StgMutArrPtrs_ptrs(src);
     new_ptrs = old_ptrs + 1;
     new_size = new_ptrs + mutArrPtrsCardWords(new_ptrs);
 
     words = BYTES_TO_WDS(SIZEOF_StgMutArrPtrs) + new_size;
-    ("ptr" dst) = ccall allocate(MyCapability() "ptr", words); 
+    ("ptr" dst) = ccall allocate(MyCapability() "ptr", words);
     TICK_ALLOC_PRIM(SIZEOF_StgMutArrPtrs, WDS(new_size), 0);
-    SET_HDR(dst, stg_MUT_ARR_PTRS_FROZEN_info, CCCS);                                 
+    SET_HDR(dst, stg_MUT_ARR_PTRS_FROZEN_info, CCCS);
     StgMutArrPtrs_ptrs(dst) = new_ptrs;
-    StgMutArrPtrs_size(dst) = new_size;                                  
-                        
-    dst_p   = dst + SIZEOF_StgMutArrPtrs;                   
+    StgMutArrPtrs_size(dst) = new_size;
+
+    dst_p   = dst + SIZEOF_StgMutArrPtrs;
     src     = src + SIZEOF_StgMutArrPtrs;
     src_end = src + WDS(old_ptrs);
 
-  while:                                                       
-    if (src != src_end) {                                         
-        W_[dst_p] = W_[src];                                 
-        dst_p = dst_p + WDS(1);                                
-        src   = src   + WDS(1);                                
-        goto while;                                            
+  while:
+    if (src != src_end) {
+        W_[dst_p] = W_[src];
+        dst_p = dst_p + WDS(1);
+        src   = src   + WDS(1);
+        goto while;
     }
-    
-    W_[dst_p] = elem;                                             
-                                                               
+
+    W_[dst_p] = elem;
+
+    return (dst);
+}
+
+snocArrayWithPadding(W_ padding, gcptr padElem, gcptr src, gcptr elem) {
+    W_ words, old_ptrs, new_ptrs, new_size;
+    gcptr dst, dst_p, src_end, dst_end;
+
+    again: MAYBE_GC(again);
+
+    old_ptrs = StgMutArrPtrs_ptrs(src);
+    new_ptrs = old_ptrs + 1 + padding;
+    new_size = new_ptrs + mutArrPtrsCardWords(new_ptrs);
+
+    words = BYTES_TO_WDS(SIZEOF_StgMutArrPtrs) + new_size;
+    ("ptr" dst) = ccall allocate(MyCapability() "ptr", words);
+    TICK_ALLOC_PRIM(SIZEOF_StgMutArrPtrs, WDS(new_size), 0);
+    SET_HDR(dst, stg_MUT_ARR_PTRS_FROZEN_info, CCCS);
+    StgMutArrPtrs_ptrs(dst) = new_ptrs;
+    StgMutArrPtrs_size(dst) = new_size;
+
+    dst_p   = dst + SIZEOF_StgMutArrPtrs;
+    src     = src + SIZEOF_StgMutArrPtrs;
+    src_end = src + WDS(old_ptrs);
+    dst_end = dst_p + WDS(new_ptrs);
+
+  while1:
+    if (src != src_end) {
+        W_[dst_p] = W_[src];
+        dst_p = dst_p + WDS(1);
+        src   = src   + WDS(1);
+        goto while1;
+    }
+
+    W_[dst_p] = elem;
+    dst_p = dst_p + WDS(1);
+
+  while2:
+    if (dst_p != dst_end) {
+        W_[dst_p] = padElem;
+        dst_p = dst_p + WDS(1);
+        goto while2;
+    }    
+
     return (dst);
 }
 
 insertArray(W_ index, gcptr elem, gcptr src) {
     W_ words, old_ptrs, new_ptrs, new_size;
     gcptr src_p, dst, dst_p, dst_end, ins_p;
-                                                               
-    again: MAYBE_GC(again); 
-             
+
+    again: MAYBE_GC(again);
+
     old_ptrs = StgMutArrPtrs_ptrs(src);
     new_ptrs = old_ptrs + 1;
     new_size = new_ptrs + mutArrPtrsCardWords(new_ptrs);
 
     words = BYTES_TO_WDS(SIZEOF_StgMutArrPtrs) + new_size;
-    ("ptr" dst) = ccall allocate(MyCapability() "ptr", words); 
+    ("ptr" dst) = ccall allocate(MyCapability() "ptr", words);
     TICK_ALLOC_PRIM(SIZEOF_StgMutArrPtrs, WDS(new_size), 0);
-    SET_HDR(dst, stg_MUT_ARR_PTRS_FROZEN_info, CCCS);                                 
+    SET_HDR(dst, stg_MUT_ARR_PTRS_FROZEN_info, CCCS);
     StgMutArrPtrs_ptrs(dst) = new_ptrs;
-    StgMutArrPtrs_size(dst) = new_size;   
+    StgMutArrPtrs_size(dst) = new_size;
 
     src_p   = src + SIZEOF_StgMutArrPtrs;
-    dst_p   = dst + SIZEOF_StgMutArrPtrs;                   
+    dst_p   = dst + SIZEOF_StgMutArrPtrs;
     ins_p   = dst_p + WDS(index);
-    dst_end = dst_p + WDS(new_ptrs);    
+    dst_end = dst_p + WDS(new_ptrs);
 
     W_[ins_p] = elem;
 
@@ -101,14 +144,14 @@ insertArray(W_ index, gcptr elem, gcptr src) {
        src_p = src_p + WDS(1);
        goto while1;
     }
-    
+
     dst_p = dst_p + WDS(1);
 
   while2:
     if (dst_p != dst_end){
        W_[dst_p] = W_[src_p];
        dst_p = dst_p + WDS(1);
-       src_p = src_p + WDS(1);      
+       src_p = src_p + WDS(1);
        goto while2;
     }
 
@@ -119,24 +162,24 @@ deleteArray(W_ index, gcptr src) {
 
     W_ words, old_ptrs, new_ptrs, new_size;
     gcptr src_p, src_end, dst, dst_p, dst_end, del_p;
-                                                               
-    again: MAYBE_GC(again); 
-             
+
+    again: MAYBE_GC(again);
+
     old_ptrs = StgMutArrPtrs_ptrs(src);
     new_ptrs = old_ptrs - 1;
     new_size = new_ptrs + mutArrPtrsCardWords(new_ptrs);
 
     words = BYTES_TO_WDS(SIZEOF_StgMutArrPtrs) + new_size;
-    ("ptr" dst) = ccall allocate(MyCapability() "ptr", words); 
+    ("ptr" dst) = ccall allocate(MyCapability() "ptr", words);
     TICK_ALLOC_PRIM(SIZEOF_StgMutArrPtrs, WDS(new_size), 0);
-    SET_HDR(dst, stg_MUT_ARR_PTRS_FROZEN_info, CCCS);                                 
+    SET_HDR(dst, stg_MUT_ARR_PTRS_FROZEN_info, CCCS);
     StgMutArrPtrs_ptrs(dst) = new_ptrs;
-    StgMutArrPtrs_size(dst) = new_size;   
+    StgMutArrPtrs_size(dst) = new_size;
 
     src_p   = src + SIZEOF_StgMutArrPtrs;
-    dst_p   = dst + SIZEOF_StgMutArrPtrs;                   
+    dst_p   = dst + SIZEOF_StgMutArrPtrs;
     del_p   = src_p + WDS(index);
-    src_end = src_p + WDS(old_ptrs);    
+    src_end = src_p + WDS(old_ptrs);
 
   while1:
     if (src_p != del_p) {
@@ -145,14 +188,14 @@ deleteArray(W_ index, gcptr src) {
        src_p = src_p + WDS(1);
        goto while1;
     }
-    
+
     src_p = src_p + WDS(1);
 
   while2:
     if (src_p != src_end){
        W_[dst_p] = W_[src_p];
        dst_p = dst_p + WDS(1);
-       src_p = src_p + WDS(1);      
+       src_p = src_p + WDS(1);
        goto while2;
     }
 
@@ -160,9 +203,9 @@ deleteArray(W_ index, gcptr src) {
 }
 
 
-    
 
-    
+
+
 
 
 
