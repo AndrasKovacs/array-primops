@@ -127,29 +127,29 @@ main = defaultMainWith (defaultConfig {timeLimit = 2}) [
 
      bgroup "SmallArray" [
         bgroup "2" [
-           bench "prim"   $ whnf (insertSA 0 10)      sa2,
-           bench "slow"   $ whnf (insertSASlow 0 10)  sa2
-           -- bench "unsafe" $ whnf (insertSAUnsafe 5 10) sa10
+           bench "prim"   $ whnf (insertSA 0 10)       sa2,
+           bench "slow"   $ whnf (insertSASlow 0 10)   sa2,
+           bench "unsafe" $ whnf (insertSAUnsafe 0 10) sa2
            ],
         bgroup "5" [
-           bench "prim"   $ whnf (insertSA 2 10)      sa5,
-           bench "slow"   $ whnf (insertSASlow 2 10)  sa5
-           -- bench "unsafe" $ whnf (insertSAUnsafe 5 10) sa10
+           bench "prim"   $ whnf (insertSA 2 10)       sa5,
+           bench "slow"   $ whnf (insertSASlow 2 10)   sa5,
+           bench "unsafe" $ whnf (insertSAUnsafe 2 10) sa5
            ],
         bgroup "10" [
-           bench "prim"   $ whnf (insertSA 5 10)      sa10,
-           bench "slow"   $ whnf (insertSASlow 5 10)  sa10
-           -- bench "unsafe" $ whnf (insertSAUnsafe 5 10) sa10
+           bench "prim"   $ whnf (insertSA 5 10)       sa10,
+           bench "slow"   $ whnf (insertSASlow 5 10)   sa10,
+           bench "unsafe" $ whnf (insertSAUnsafe 5 10) sa10
            ],
         bgroup "100" [
-           bench "prim"   $ whnf (insertSA 50 10)     sa100,
-           bench "slow"   $ whnf (insertSASlow 50 10) sa100
-           -- bench "unsafe" $ whnf (insertSAUnsafe 50 10) sa10
+           bench "prim"   $ whnf (insertSA 50 10)       sa100,
+           bench "slow"   $ whnf (insertSASlow 50 10)   sa100,
+           bench "unsafe" $ whnf (insertSAUnsafe 50 10) sa100
            ],
         bgroup "1000" [
-           bench "prim"   $ whnf (insertSA 500 10)     sa1000,
-           bench "slow"   $ whnf (insertSASlow 500 10) sa1000
-           -- bench "unsafe" $ whnf (insertSAUnsafe 500 10) sa10
+           bench "prim"   $ whnf (insertSA 500 10)       sa1000,
+           bench "slow"   $ whnf (insertSASlow 500 10)   sa1000,
+           bench "unsafe" $ whnf (insertSAUnsafe 500 10) sa1000
            ]
         ]
      ],
@@ -174,28 +174,28 @@ main = defaultMainWith (defaultConfig {timeLimit = 2}) [
      bgroup "SmallArray" [
         bgroup "2" [
            bench "prim"   $ whnf (deleteSA 0)       sa2,
-           bench "slow"   $ whnf (deleteSASlow 0)   sa2
-           -- bench "unsafe" $ whnf (deleteSAUnsafe 5) sa10
+           bench "slow"   $ whnf (deleteSASlow 0)   sa2,
+           bench "unsafe" $ whnf (deleteSAUnsafe 0) sa10
            ],
         bgroup "5" [
            bench "prim"   $ whnf (deleteSA 2)       sa5,
-           bench "slow"   $ whnf (deleteSASlow 2)   sa5
-           -- bench "unsafe" $ whnf (deleteSAUnsafe 5) sa10
+           bench "slow"   $ whnf (deleteSASlow 2)   sa5,
+           bench "unsafe" $ whnf (deleteSAUnsafe 2) sa5
            ],
         bgroup "10" [
            bench "prim"   $ whnf (deleteSA 5)       sa10,
-           bench "slow"   $ whnf (deleteSASlow 5)   sa10
-           -- bench "unsafe" $ whnf (deleteSAUnsafe 5) sa10
+           bench "slow"   $ whnf (deleteSASlow 5)   sa10,
+           bench "unsafe" $ whnf (deleteSAUnsafe 5) sa10
            ],
         bgroup "100" [
            bench "prim"   $ whnf (deleteSA 50)     sa100,
-           bench "slow"   $ whnf (deleteSASlow 50) sa100
-           -- bench "unsafe" $ whnf (deleteSAUnsafe 50) sa10
+           bench "slow"   $ whnf (deleteSASlow 50) sa100,
+           bench "unsafe" $ whnf (deleteSAUnsafe 50) sa100
            ],
         bgroup "1000" [
-           bench "prim"   $ whnf (deleteSA 500)     sa1000,
-           bench "slow"   $ whnf (deleteSASlow 500) sa1000
-           -- bench "unsafe" $ whnf (deleteSAUnsafe 500) sa10
+           bench "prim"   $ whnf (deleteSA 500)       sa1000,
+           bench "slow"   $ whnf (deleteSASlow 500)   sa1000,
+           bench "unsafe" $ whnf (deleteSAUnsafe 500) sa1000
            ]
         ]
      ]

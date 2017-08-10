@@ -1,6 +1,6 @@
 
 name:                array-primops
-version:             0.2.0.0
+version:             0.2.0.1
 synopsis:            Extra foreign primops for primitive arrays
 license:             BSD3
 license-file:        LICENSE
@@ -9,11 +9,11 @@ maintainer:          puttamalac@gmail.com
 copyright:           2015 András Kovács
 category:            Data
 build-type:          Simple
-cabal-version:       >=1.10     
+cabal-version:       >=1.10
 
 description:
 
-  Boxed arrays cannot be allocated without initialization, because in that case the garbage collector would try to follow wild pointers. This is a source of inefficiency; quite a few operations must allocate a new array, initialize it, then overwrite the initial elements with the actually relevant data. This package provides low-level primitives for doing such operations without superfluous copying. 
+  Boxed arrays cannot be allocated without initialization, because in that case the garbage collector would try to follow wild pointers. This is a source of inefficiency; quite a few operations must allocate a new array, initialize it, then overwrite the initial elements with the actually relevant data. This package provides low-level primitives for doing such operations without superfluous copying.
 
 source-repository head
   type:     git
@@ -32,10 +32,10 @@ library
       ghc-prim >= 0.3.1.0
 
     c-sources:
-      cbits/array.cmm 
- 
+      cbits/array.cmm
+
   if impl(ghc >= 7.10)
-  
+
     exposed-modules:
       GHC.Prim.SmallArray
 
@@ -46,13 +46,14 @@ library
       cbits/smallArray.cmm
 
 test-suite tests
+  default-language: Haskell2010
   hs-source-dirs: tests
   main-is: Tests.hs
   type: exitcode-stdio-1.0
   build-depends:
     QuickCheck, tasty, tasty-quickcheck, ghc-prim, base, array-primops
   ghc-options: -O2
-                
+
 benchmark benchmarks
   default-language: Haskell2010
   hs-source-dirs: benchmarks
@@ -66,4 +67,4 @@ benchmark benchmarks
     array-primops,
     criterion >= 1.0
 
-  ghc-options: -O2 -fllvm
+  ghc-options: -O2
