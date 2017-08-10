@@ -28,7 +28,7 @@ library
       GHC.Prim.Array
 
     build-depends:
-      base >= 4.7 && <4.9 ,
+      base >= 4.7 && <5,
       ghc-prim >= 0.3.1.0
 
     c-sources:

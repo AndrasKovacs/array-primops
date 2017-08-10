@@ -12,6 +12,7 @@ module GHC.Prim.SmallArray (
   ) where
 
 import GHC.Prim
+import GHC.Types
 
 -- | Prepend an element to an array.
 foreign import prim "consSmallArray" consSmallArray_
