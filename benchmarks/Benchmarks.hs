@@ -11,8 +11,7 @@ import GHC.Prim hiding (runSTRep)
 
 import GHC.Prim.Array
 import GHC.Prim.SmallArray
-import Criterion.Main
-import Criterion.Types
+import Gauge
 
 #include "MachDeps.h"
 
@@ -41,7 +40,11 @@ sa10   = san 10
 sa100  = san 100
 sa1000 = san 1000
 
-main = defaultMainWith (defaultConfig {timeLimit = 2}) [
+
+-- main = print $ toListSA $ insertSAUnsafe 2 100 $ fromListSA [0..10 ::Int]
+
+
+main = defaultMainWith (defaultConfig {timeLimit = Just 2, displayMode=Condensed}) [
   -- bgroup "cons" [
 
   --    bgroup "Array" [
@@ -152,53 +155,53 @@ main = defaultMainWith (defaultConfig {timeLimit = 2}) [
            bench "unsafe" $ whnf (insertSAUnsafe 500 10) sa1000
            ]
         ]
-     ],
-
-  bgroup "delete" [
-
-     -- bgroup "Array" [
-     --    bgroup "10" [
-     --       bench "prim" $ whnf (deleteA 5)     a10,
-     --       bench "slow" $ whnf (deleteASlow 5) a10
-     --       ],
-     --    bgroup "100" [
-     --       bench "prim" $ whnf (deleteA 50)     a100,
-     --       bench "slow" $ whnf (deleteASlow 50) a100
-     --       ],
-     --    bgroup "1000" [
-     --       bench "prim" $ whnf (deleteA 500)     a1000,
-     --       bench "slow" $ whnf (deleteASlow 500) a1000
-     --       ]
-     --    ],
-
-     bgroup "SmallArray" [
-        bgroup "2" [
-           bench "prim"   $ whnf (deleteSA 0)       sa2,
-           bench "slow"   $ whnf (deleteSASlow 0)   sa2,
-           bench "unsafe" $ whnf (deleteSAUnsafe 0) sa10
-           ],
-        bgroup "5" [
-           bench "prim"   $ whnf (deleteSA 2)       sa5,
-           bench "slow"   $ whnf (deleteSASlow 2)   sa5,
-           bench "unsafe" $ whnf (deleteSAUnsafe 2) sa5
-           ],
-        bgroup "10" [
-           bench "prim"   $ whnf (deleteSA 5)       sa10,
-           bench "slow"   $ whnf (deleteSASlow 5)   sa10,
-           bench "unsafe" $ whnf (deleteSAUnsafe 5) sa10
-           ],
-        bgroup "100" [
-           bench "prim"   $ whnf (deleteSA 50)     sa100,
-           bench "slow"   $ whnf (deleteSASlow 50) sa100,
-           bench "unsafe" $ whnf (deleteSAUnsafe 50) sa100
-           ],
-        bgroup "1000" [
-           bench "prim"   $ whnf (deleteSA 500)       sa1000,
-           bench "slow"   $ whnf (deleteSASlow 500)   sa1000,
-           bench "unsafe" $ whnf (deleteSAUnsafe 500) sa1000
-           ]
-        ]
      ]
+
+  -- bgroup "delete" [
+
+  --    -- bgroup "Array" [
+  --    --    bgroup "10" [
+  --    --       bench "prim" $ whnf (deleteA 5)     a10,
+  --    --       bench "slow" $ whnf (deleteASlow 5) a10
+  --    --       ],
+  --    --    bgroup "100" [
+  --    --       bench "prim" $ whnf (deleteA 50)     a100,
+  --    --       bench "slow" $ whnf (deleteASlow 50) a100
+  --    --       ],
+  --    --    bgroup "1000" [
+  --    --       bench "prim" $ whnf (deleteA 500)     a1000,
+  --    --       bench "slow" $ whnf (deleteASlow 500) a1000
+  --    --       ]
+  --    --    ],
+
+  --    bgroup "SmallArray" [
+  --       bgroup "2" [
+  --          bench "prim"   $ whnf (deleteSA 0)       sa2,
+  --          bench "slow"   $ whnf (deleteSASlow 0)   sa2,
+  --          bench "unsafe" $ whnf (deleteSAUnsafe 0) sa10
+  --          ],
+  --       bgroup "5" [
+  --          bench "prim"   $ whnf (deleteSA 2)       sa5,
+  --          bench "slow"   $ whnf (deleteSASlow 2)   sa5,
+  --          bench "unsafe" $ whnf (deleteSAUnsafe 2) sa5
+  --          ],
+  --       bgroup "10" [
+  --          bench "prim"   $ whnf (deleteSA 5)       sa10,
+  --          bench "slow"   $ whnf (deleteSASlow 5)   sa10,
+  --          bench "unsafe" $ whnf (deleteSAUnsafe 5) sa10
+  --          ],
+  --       bgroup "100" [
+  --          bench "prim"   $ whnf (deleteSA 50)     sa100,
+  --          bench "slow"   $ whnf (deleteSASlow 50) sa100,
+  --          bench "unsafe" $ whnf (deleteSAUnsafe 50) sa100
+  --          ],
+  --       bgroup "1000" [
+  --          bench "prim"   $ whnf (deleteSA 500)       sa1000,
+  --          bench "slow"   $ whnf (deleteSASlow 500)   sa1000,
+  --          bench "unsafe" $ whnf (deleteSAUnsafe 500) sa1000
+  --          ]
+  --       ]
+  --    ]
   ]
 
 
@@ -341,11 +344,23 @@ insertSAUnsafe :: Int -> a -> SA a -> SA a
 insertSAUnsafe (I# i) a (SA arr) = runSTRep $ \s ->
   let !len = sizeofSmallArray# arr in
   case newByteArray# (SIZEOF_HSWORD# *# (len +# 1#)) s of
-    (# s, barr #) -> case copySmallArray# arr (-2#) (unsafeCoerce# barr) (-2#) (i +# 2#) s of
-      s -> case writeIntOffAddr# (unsafeCoerce# barr) 1# (len +# 1#) s of
-        s -> case writeSmallArray# (unsafeCoerce# barr) i a s of
-          s -> case copySmallArray# arr i (unsafeCoerce# barr) (i +# 1#) (len -# i) s of
-            s -> (# s, SA (unsafeCoerce# barr) #)
+    (# s, barr #) -> case readAddrOffAddr# (unsafeCoerce# arr) 0# s of
+      (# s, info #) -> case writeAddrOffAddr# (unsafeCoerce# barr) 0# info s of
+        s -> case writeIntOffAddr# (unsafeCoerce# barr) 1# (len +# 1#) s of
+          s -> case copySmallArray# arr 0# (unsafeCoerce# barr) 0# i s of
+            s -> case writeSmallArray# (unsafeCoerce# barr) i a s of
+              s -> case copySmallArray# arr i (unsafeCoerce# barr) (i +# 1#) (len -# i) s of
+                s -> (# s, SA (unsafeCoerce# barr) #)
+
+-- insertSAUnsafe :: Int -> a -> SA a -> SA a
+-- insertSAUnsafe (I# i) a (SA arr) = runSTRep $ \s ->
+--   let !len = sizeofSmallArray# arr in
+--   case newByteArray# (SIZEOF_HSWORD# *# (len +# 1#)) s of
+--     (# s, barr #) -> case copySmallArray# arr (-2#) (unsafeCoerce# barr) (-2#) (i +# 2#) s of
+--       s -> case writeIntOffAddr# (unsafeCoerce# barr) 1# (len +# 1#) s of
+--         s -> case writeSmallArray# (unsafeCoerce# barr) i a s of
+--           s -> case copySmallArray# arr i (unsafeCoerce# barr) (i +# 1#) (len -# i) s of
+--             s -> (# s, SA (unsafeCoerce# barr) #)
 
 deleteSAUnsafe :: Int -> SA a -> SA a
 deleteSAUnsafe (I# i) (SA arr) = runSTRep $ \s ->

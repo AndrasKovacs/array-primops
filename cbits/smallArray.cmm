@@ -13,7 +13,7 @@ consSmallArray(gcptr elem, gcptr src) {
     words = BYTES_TO_WDS(SIZEOF_StgSmallMutArrPtrs) + new_size;
     ("ptr" dst) = ccall allocate(MyCapability() "ptr", words);
     TICK_ALLOC_PRIM(SIZEOF_StgSmallMutArrPtrs, WDS(new_size), 0);
-    SET_HDR(dst, stg_SMALL_MUT_ARR_PTRS_FROZEN_info, CCCS);
+    SET_HDR(dst, stg_SMALL_MUT_ARR_PTRS_FROZEN_CLEAN_info, CCCS);
     StgSmallMutArrPtrs_ptrs(dst) = new_size;
 
     dst_p   = dst + SIZEOF_StgSmallMutArrPtrs;
@@ -46,7 +46,7 @@ snocSmallArray(gcptr src, gcptr elem) {
     words = BYTES_TO_WDS(SIZEOF_StgSmallMutArrPtrs) + new_size;
     ("ptr" dst) = ccall allocate(MyCapability() "ptr", words);
     TICK_ALLOC_PRIM(SIZEOF_StgSmallMutArrPtrs, WDS(new_size), 0);
-    SET_HDR(dst, stg_SMALL_MUT_ARR_PTRS_FROZEN_info, CCCS);
+    SET_HDR(dst, stg_SMALL_MUT_ARR_PTRS_FROZEN_CLEAN_info, CCCS);
     StgSmallMutArrPtrs_ptrs(dst) = new_size;
 
     dst_p   = dst + SIZEOF_StgSmallMutArrPtrs;
@@ -78,7 +78,7 @@ snocSmallArrayWithPadding(W_ padding, gcptr padElem, gcptr src, gcptr elem) {
     words = BYTES_TO_WDS(SIZEOF_StgSmallMutArrPtrs) + new_size;
     ("ptr" dst) = ccall allocate(MyCapability() "ptr", words);
     TICK_ALLOC_PRIM(SIZEOF_StgSmallMutArrPtrs, WDS(new_size), 0);
-    SET_HDR(dst, stg_SMALL_MUT_ARR_PTRS_FROZEN_info, CCCS);
+    SET_HDR(dst, stg_SMALL_MUT_ARR_PTRS_FROZEN_CLEAN_info, CCCS);
     StgSmallMutArrPtrs_ptrs(dst) = new_size;
 
     dst_p   = dst + SIZEOF_StgSmallMutArrPtrs;
@@ -118,7 +118,7 @@ insertSmallArray(W_ index, gcptr elem, gcptr src) {
     words = BYTES_TO_WDS(SIZEOF_StgSmallMutArrPtrs) + size;
     ("ptr" dst) = ccall allocate(MyCapability() "ptr", words);
     TICK_ALLOC_PRIM(SIZEOF_StgSmallMutArrPtrs, WDS(size), 0);
-    SET_HDR(dst, stg_SMALL_MUT_ARR_PTRS_FROZEN_info, CCCS);
+    SET_HDR(dst, stg_SMALL_MUT_ARR_PTRS_FROZEN_CLEAN_info, CCCS);
     StgSmallMutArrPtrs_ptrs(dst) = size;
 
     src_p   = src + SIZEOF_StgSmallMutArrPtrs;
@@ -161,7 +161,7 @@ deleteSmallArray(W_ index, gcptr src) {
     words = BYTES_TO_WDS(SIZEOF_StgSmallMutArrPtrs) + new_size;
     ("ptr" dst) = ccall allocate(MyCapability() "ptr", words);
     TICK_ALLOC_PRIM(SIZEOF_StgSmallMutArrPtrs, WDS(new_size), 0);
-    SET_HDR(dst, stg_SMALL_MUT_ARR_PTRS_FROZEN_info, CCCS);
+    SET_HDR(dst, stg_SMALL_MUT_ARR_PTRS_FROZEN_CLEAN_info, CCCS);
     StgSmallMutArrPtrs_ptrs(dst) = new_size;
 
     src_p   = src + SIZEOF_StgSmallMutArrPtrs;
@@ -189,13 +189,3 @@ deleteSmallArray(W_ index, gcptr src) {
 
     return (dst);
 }
-
-
-
-
-
-
-
-
-
-

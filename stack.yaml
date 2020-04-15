@@ -1,6 +1,5 @@
-resolver: nightly-2017-08-08
+
+resolver: lts-15.8
+
 packages:
 - '.'
-extra-deps: []
-flags: {}
-extra-package-dbs: []
